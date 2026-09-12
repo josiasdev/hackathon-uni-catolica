@@ -1,0 +1,25 @@
+import { cache } from "react";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+
+export const getProfile = cache(async () => {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id, full_name, role, bio, course, semester, avatar_url")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile) {
+    await supabase.auth.signOut();
+    redirect("/login");
+  }
+
+  return profile;
+});
