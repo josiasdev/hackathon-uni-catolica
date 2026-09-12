@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { GraduationCap, LayoutDashboard, School, BookOpen } from "lucide-react";
+import { GraduationCap, LayoutDashboard, School, BookOpen, Route, Briefcase } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "UniConnect — Administração",
@@ -10,6 +10,8 @@ const navItems = [
   { href: "/admin", label: "Painel", icon: LayoutDashboard },
   { href: "/admin/institutions", label: "Instituições", icon: School },
   { href: "/admin/courses", label: "Cursos", icon: BookOpen },
+  { href: "/admin/tracks", label: "Trilhas", icon: Route },
+  { href: "/admin/opportunities", label: "Oportunidades", icon: Briefcase },
 ];
 
 export default function AdminLayout({

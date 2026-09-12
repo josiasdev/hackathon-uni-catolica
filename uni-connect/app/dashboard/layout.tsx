@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { GraduationCap, LayoutDashboard, Briefcase, User } from "lucide-react";
+import { GraduationCap, LayoutDashboard, Briefcase, User, Award, Trophy, BookOpen, Search } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "UniConnect — Dashboard",
@@ -9,7 +9,11 @@ export const metadata: Metadata = {
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/search", label: "Buscar", icon: Search },
+  { href: "/dashboard/courses", label: "Cursos", icon: BookOpen },
   { href: "/dashboard/trajectory", label: "Trajetória", icon: GraduationCap },
+  { href: "/dashboard/skills", label: "Competências", icon: Award },
+  { href: "/dashboard/achievements", label: "Conquistas", icon: Trophy },
   { href: "/dashboard/opportunities", label: "Oportunidades", icon: Briefcase },
   { href: "/dashboard/profile", label: "Perfil", icon: User },
 ];

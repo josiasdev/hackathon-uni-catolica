@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { OpportunitiesCatalog } from "./opportunities-catalog";
+import { OpportunitiesManager } from "./opportunities-manager";
 
 export default async function OpportunitiesPage() {
   const supabase = await createClient();
@@ -10,36 +10,35 @@ export default async function OpportunitiesPage() {
   const { data: opportunities } = await supabase
     .from("opportunities")
     .select("id, title, description, type, modality, location, workload_hours, compensation, is_active, created_at")
-    .eq("is_active", true)
+    .eq("publisher_id", user?.id ?? "")
     .order("created_at", { ascending: false });
+
+  const { data: skills } = await supabase
+    .from("skills")
+    .select("id, name")
+    .order("name");
 
   const { data: opportunitySkills } = await supabase
     .from("opportunity_skills")
-    .select("opportunity_id, skill_id, skills(id, name)");
-
-  const { data: userSkills } = await supabase
-    .from("user_skills")
-    .select("skill_id");
+    .select("opportunity_id, skill_id");
 
   const { data: applications } = await supabase
     .from("applications")
-    .select("opportunity_id, status")
-    .eq("user_id", user?.id ?? "");
-
-  const userSkillIds = new Set((userSkills ?? []).map((us) => us.skill_id));
+    .select("id, opportunity_id, status, applied_at, profiles(full_name)")
+    .in("opportunity_id", (opportunities ?? []).map((o) => o.id));
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Oportunidades</h1>
         <p className="text-muted-foreground">
-          Vagas, estágios, bolsas e oportunidades compatíveis com seu perfil.
+          Gerencie as oportunidades que você publicou.
         </p>
       </div>
-      <OpportunitiesCatalog
+      <OpportunitiesManager
         opportunities={opportunities ?? []}
+        skills={skills ?? []}
         opportunitySkills={opportunitySkills ?? []}
-        userSkillIds={userSkillIds}
         applications={applications ?? []}
       />
     </div>
