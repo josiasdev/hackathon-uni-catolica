@@ -1,0 +1,16 @@
+"use client";
+
+import { ArrowRight, CheckCircle2, ListChecks } from "lucide-react";
+import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+type Selection = { id: string; title: string; description: string | null; stages: { id: string; title: string; position: number }[]; application: { id: string; status: string; current_stage_id: string | null } | null };
+
+export function SelectionList({ userId, initialSelections }: { userId: string; initialSelections: Selection[] }) {
+  const [selections, setSelections] = useState(initialSelections); const [loadingId, setLoadingId] = useState<string | null>(null);
+  async function apply(selection: Selection) { setLoadingId(selection.id); const supabase = createClient(); const { data } = await supabase.from("selection_applications").insert({ selection_id: selection.id, user_id: userId, current_stage_id: selection.stages[0]?.id ?? null }).select("id, status, current_stage_id").single(); if (data) setSelections((current) => current.map((item) => item.id === selection.id ? { ...item, application: data } : item)); setLoadingId(null); }
+  return <div className="grid gap-4 md:grid-cols-2">{selections.length ? selections.map((selection) => { const activeStage = selection.stages.find((stage) => stage.id === selection.application?.current_stage_id); return <Card key={selection.id} className="flex flex-col"><CardHeader><div className="flex items-start justify-between gap-3"><div className="flex size-10 items-center justify-center rounded-xl bg-muted"><ListChecks className="size-5" /></div><Badge variant={selection.application ? "secondary" : "outline"}>{selection.application ? "Inscrito" : "Aberto"}</Badge></div><CardTitle className="mt-4 text-lg">{selection.title}</CardTitle></CardHeader><CardContent className="flex flex-1 flex-col"><p className="flex-1 text-sm leading-6 text-muted-foreground">{selection.description ?? "Acompanhe cada etapa deste processo seletivo."}</p><div className="mt-4 flex flex-wrap gap-1.5">{selection.stages.map((stage) => <Badge key={stage.id} variant={stage.id === activeStage?.id ? "default" : "outline"}>{stage.position}. {stage.title}</Badge>)}</div><div className="mt-5 border-t border-border pt-4">{selection.application ? <span className="flex items-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-400"><CheckCircle2 className="size-4" /> Etapa atual: {activeStage?.title ?? "Em análise"}</span> : <Button size="sm" onClick={() => apply(selection)} disabled={loadingId === selection.id}>{loadingId === selection.id ? "Inscrevendo..." : "Acompanhar seleção"}<ArrowRight /></Button>}</div></CardContent></Card>; }) : <div className="col-span-full rounded-2xl border border-dashed border-border px-6 py-12 text-center"><ListChecks className="mx-auto size-8 text-muted-foreground" /><p className="mt-4 font-medium">Nenhuma seleção aberta ainda</p><p className="mt-1 text-sm text-muted-foreground">Novos processos aparecerão aqui.</p></div>}</div>;
+}

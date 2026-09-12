@@ -1,0 +1,21 @@
+"use client";
+
+import { CalendarDays, CheckCircle2, Plus } from "lucide-react";
+import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+
+export function EventForm({ creatorId, institutionId }: { creatorId: string; institutionId: string | null }) {
+  const [title, setTitle] = useState(""); const [description, setDescription] = useState(""); const [startsAt, setStartsAt] = useState(""); const [type, setType] = useState("workshop"); const [modality, setModality] = useState("presencial"); const [location, setLocation] = useState(""); const [saving, setSaving] = useState(false); const [error, setError] = useState<string | null>(null); const [saved, setSaved] = useState(false);
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault(); setSaving(true); setSaved(false); setError(null);
+    const supabase = createClient();
+    const { error: insertError } = await supabase.from("events").insert({ title: title.trim(), description: description.trim() || null, event_type: type, starts_at: new Date(startsAt).toISOString(), modality, location: location.trim() || null, published: true, created_by: creatorId, institution_id: institutionId });
+    if (insertError) { setError("Não foi possível publicar o evento."); setSaving(false); return; }
+    setTitle(""); setDescription(""); setStartsAt(""); setLocation(""); setSaved(true); setSaving(false); window.location.reload();
+  }
+  return <form onSubmit={submit} className="space-y-5"><div className="flex items-center gap-3"><div className="flex size-10 items-center justify-center rounded-xl bg-primary"><CalendarDays className="size-5" /></div><div><p className="font-medium">Novo evento</p><p className="text-xs text-muted-foreground">Crie uma experiência para a comunidade.</p></div></div><div className="space-y-2"><Label htmlFor="event-title">Título</Label><Input id="event-title" required value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Ex.: Workshop de portfólio" className="h-11" /></div><div className="space-y-2"><Label htmlFor="event-description">Descrição</Label><Textarea id="event-description" value={description} onChange={(event) => setDescription(event.target.value)} placeholder="O que as pessoas vão vivenciar?" /></div><div className="grid gap-4 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="event-date">Data e horário</Label><Input id="event-date" required type="datetime-local" value={startsAt} onChange={(event) => setStartsAt(event.target.value)} className="h-11" /></div><div className="space-y-2"><Label htmlFor="event-type">Tipo</Label><select id="event-type" value={type} onChange={(event) => setType(event.target.value)} className="border-input flex h-11 w-full rounded-lg border bg-background px-3 text-sm"><option value="workshop">Workshop</option><option value="palestra">Palestra</option><option value="hackathon">Hackathon</option><option value="networking">Networking</option></select></div></div><div className="grid gap-4 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="event-modality">Modalidade</Label><select id="event-modality" value={modality} onChange={(event) => setModality(event.target.value)} className="border-input flex h-11 w-full rounded-lg border bg-background px-3 text-sm"><option value="presencial">Presencial</option><option value="hibrido">Híbrido</option><option value="remoto">Remoto</option></select></div><div className="space-y-2"><Label htmlFor="event-location">Local ou link</Label><Input id="event-location" value={location} onChange={(event) => setLocation(event.target.value)} placeholder="Ex.: Auditório principal" className="h-11" /></div></div>{error && <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}{saved && <p role="status" className="flex items-center gap-2 text-sm text-emerald-700 dark:text-emerald-400"><CheckCircle2 className="size-4" /> Evento publicado.</p>}<Button type="submit" disabled={saving || !title.trim() || !startsAt}><Plus />{saving ? "Publicando..." : "Publicar evento"}</Button></form>;
+}

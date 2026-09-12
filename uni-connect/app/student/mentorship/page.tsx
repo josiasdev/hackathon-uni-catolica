@@ -1,0 +1,7 @@
+import { ArrowLeft, HandHeart } from "lucide-react";
+import Link from "next/link";
+import { getAvailableMentors, getProfile } from "@/lib/supabase/dal";
+import { MentorList } from "@/components/mentor-list";
+import { buttonVariants } from "@/components/ui/button";
+
+export default async function StudentMentorshipPage() { const profile = await getProfile(); const mentors = await getAvailableMentors(profile.id); return <div className="space-y-8 pb-10"><div><Link href="/student/dashboard" className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" /> Dashboard</Link><div className="flex items-center justify-between gap-4"><div className="flex items-center gap-3"><div className="flex size-12 items-center justify-center rounded-2xl bg-primary"><HandHeart className="size-6" /></div><div><p className="text-xs font-semibold tracking-[0.2em] text-primary-foreground uppercase">Acelere sua jornada</p><h1 className="mt-1 text-3xl font-semibold tracking-tight">Mentorias</h1></div></div><Link href="/student/mentorship/manage" className={buttonVariants({ variant: "outline" })}>Oferecer mentoria</Link></div><p className="mt-4 max-w-xl text-muted-foreground">Encontre alguém que já percorreu um caminho parecido e peça uma conversa.</p></div><MentorList userId={profile.id} initialMentors={mentors} /></div>; }
