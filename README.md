@@ -1,33 +1,43 @@
-# Trajetória Unicatólica
+# UniConnect
 
 > **A graduação termina. A conexão não.**
+> Estude · Conecte · Conquiste
 
 MVP desenvolvido durante o **Hackathon Unicatólica** — Trilha CONECTAR, Desafio 16: *Estudantes, egressos e oportunidades*.
 
+## 📚 Documentação
+
+- [`context.md`](./context.md) — visão de produto, personas, módulos funcionais e modelo de dados conceitual
+- [`design.md`](./design.md) — identidade visual, paleta, tipografia e sistema de componentes
+- [`roadmap.md`](./roadmap.md) — plano de implementação em fases (MVP do hackathon → visão completa)
+
 ## 💡 Sobre o projeto
 
-Uma plataforma de **engajamento, reconhecimento e conexão de talentos** da Unicatólica.
+O UniConnect é uma **rede acadêmica, profissional e de oportunidades** que conecta universidades, alunos, egressos e empresas em um único perfil contínuo.
 
-O estudante acumula pontos e conquistas ao participar de atividades acadêmicas e profissionais (projetos, pesquisa, extensão, monitoria, eventos, certificações, estágios, voluntariado), construindo um **perfil de trajetória** que o conecta a novas oportunidades — mesmo após a formatura.
+Toda atividade do estudante — cursos, certificações, projetos, eventos, seleções — alimenta automaticamente um **perfil de trajetória** e um conjunto de **competências**, usados para calcular compatibilidade com oportunidades reais de mercado. Esse perfil não é substituído quando o aluno se forma: ele evolui para egresso, mantendo o vínculo com a universidade e passando a atuar também como mentor, parceiro ou fonte de talento para empresas.
 
 **Problema:** ausência de mecanismos que conectem talentos formados às demandas do mercado, e falta de continuidade no relacionamento entre universidade, estudante e egresso.
 
-**Solução:** transformar `Participação → Trajetória → Reconhecimento → Oportunidades → Conexão`.
+**Solução:** transformar `Participação → Trajetória → Reconhecimento → Oportunidades → Conexão`, mantendo esse ciclo ativo antes, durante e depois da graduação. Detalhes completos do loop em [`context.md`](./context.md#5-o-loop-de-integração-central).
+
+> ℹ️ A visão completa do produto tem 15 módulos funcionais (ver [`context.md`](./context.md)). Este repositório implementa esse escopo **de forma incremental**, seguindo o [`roadmap.md`](./roadmap.md) — o MVP do hackathon cobre fundação, perfil/trajetória/competências, academia e oportunidades/busca/compatibilidade (Fases 0–3).
 
 ## 🚀 Como funciona
 
-1. O aluno registra atividades acadêmicas e profissionais
-2. A universidade aprova e atribui pontos
-3. O aluno evolui de nível e desbloqueia conquistas
-4. Seu perfil de talento fica visível para oportunidades de mercado
-5. Após a graduação, o vínculo continua via mentorias, eventos e networking
+1. O aluno registra atividades acadêmicas e profissionais (cursos, projetos, eventos, seleções)
+2. Cada atividade gera automaticamente competências, entradas na trajetória e, quando aplicável, conquistas
+3. O perfil de trajetória é comparado, por regras (sem IA), às competências exigidas por oportunidades
+4. O aluno se candidata a vagas, projetos e processos seletivos com compatibilidade calculada
+5. Após a graduação, o vínculo continua: o egresso vira mentor, cria projetos ou representa empresas parceiras
 
 ## 🛠️ Tecnologias
 
-- [Next.js 14](https://nextjs.org/) (App Router)
+- [Next.js 16](https://nextjs.org/) (App Router)
+- [React 19](https://react.dev/)
 - [TypeScript](https://www.typescriptlang.org/)
-- [Supabase](https://supabase.com/) (Auth + Postgres + Storage)
-- [Tailwind CSS](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
+- [Supabase](https://supabase.com/) (Auth + Postgres com `pg_trgm` + Storage)
+- [Tailwind CSS v4](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
 - [Vercel](https://vercel.com/) (deploy)
 
 ## 📦 Rodando o projeto localmente
@@ -35,7 +45,7 @@ O estudante acumula pontos e conquistas ao participar de atividades acadêmicas 
 ```bash
 # clone o repositório
 git clone https://github.com/seu-usuario/hackathon-uni-catolica.git
-cd hackathon-uni-catolica
+cd hackathon-uni-catolica/uni-connect
 
 # instale as dependências
 npm install
@@ -60,21 +70,24 @@ Acesse [http://localhost:3000](http://localhost:3000).
 
 ## 🗄️ Estrutura do banco de dados
 
-- `profiles` — dados do usuário, pontos totais e nível
-- `activity_categories` — tipos de atividade e valor em pontos
-- `activities` — atividades registradas pelo aluno (com status de aprovação)
-- `achievements` — conquistas/badges desbloqueadas
+> O schema abaixo reflete o escopo inicial (Fases 0–1 do [`roadmap.md`](./roadmap.md)). O modelo conceitual completo, com todas as entidades da visão do produto, está em [`context.md`](./context.md#6-modelo-de-dados-conceitual).
 
-O script SQL completo de criação das tabelas está em [`/supabase/schema.sql`](./supabase/schema.sql).
+- `profiles` — dados do usuário, papel (aluno/egresso/empresa/instituição) e vínculo institucional
+- `skills` / `user_skills` — competências e sua origem (curso, certificação, projeto, evento, seleção)
+- `trajectory_events` — timeline de atividades acadêmicas e profissionais
+- `achievements` / `user_achievements` — conquistas desbloqueadas
+
+O script SQL de criação das tabelas será versionado em `/supabase/schema.sql` conforme a Fase 0 do roadmap for implementada (ainda não existe neste repositório).
 
 ## 📁 Estrutura do projeto
 
 ```
-app/
-├── (auth)/          # login e cadastro
-├── (student)/        # dashboard, atividades, conquistas, oportunidades
-├── (admin)/          # aprovação de atividades
-└── layout.tsx
+uni-connect/
+└── app/
+    ├── (auth)/          # login e cadastro
+    ├── (student)/       # dashboard, trajetória, competências, oportunidades
+    ├── (admin)/         # gestão institucional
+    └── layout.tsx
 ```
 
 ## 🎯 Impacto
